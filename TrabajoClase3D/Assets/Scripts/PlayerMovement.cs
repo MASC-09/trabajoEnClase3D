@@ -14,6 +14,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 camRight;
     public Camera mainCamera;
     private Vector3 movePlayer; //to turn the player. 
+    public float gravity = 9.8f;
+    public float fallVelocity;
+    public float jumpVelocity;
 
 
     // Start is called before the first frame update
@@ -34,10 +37,15 @@ public class PlayerMovement : MonoBehaviour
 
         movePlayer = playerInput.x * camRight + playerInput.z * camFoward;
 
+        movePlayer = movePlayer * playerSpeed;
 
         player.transform.LookAt(player.transform.position + movePlayer);
-        player.Move(new Vector3(horizontalMove, 0, verticalMove) * playerSpeed * Time.deltaTime);
 
+        SetGravity();
+
+        PlayerSkills();
+
+        player.Move(movePlayer * playerSpeed * Time.deltaTime);
     }
     //Get's the camera's direction
     //get the cameras direction and saves it  the global variblas camForward and camRight
@@ -52,5 +60,28 @@ public class PlayerMovement : MonoBehaviour
         camFoward = camFoward.normalized;
         camRight = camRight.normalized;
 
+    }
+
+    void SetGravity()
+    {
+        if (player.isGrounded)
+        {
+            fallVelocity = -gravity * Time.deltaTime;
+            movePlayer.y = fallVelocity;
+        }
+        else
+        {
+            fallVelocity -= gravity * Time.deltaTime;
+            movePlayer.y = fallVelocity;
+        }
+    }
+
+    void PlayerSkills()
+    {
+        if (player.isGrounded && Input.GetButton("Jump"))
+        {
+            fallVelocity = jumpVelocity;
+            movePlayer.y = fallVelocity;
+        }
     }
 }
