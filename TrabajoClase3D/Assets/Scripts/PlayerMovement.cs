@@ -17,12 +17,15 @@ public class PlayerMovement : MonoBehaviour
     public float gravity = 9.8f;
     public float fallVelocity;
     public float jumpVelocity;
+    public Animator playerAnimatorController;
 
 
     // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<CharacterController>();
+        playerAnimatorController = GetComponent<Animator>();
+
     }
 
     // Update is called once per frame
@@ -32,6 +35,8 @@ public class PlayerMovement : MonoBehaviour
         verticalMove = Input.GetAxis("Vertical");
         playerInput = new Vector3(horizontalMove, 0, verticalMove);
         playerInput = Vector3.ClampMagnitude(playerInput, 1);
+
+        playerAnimatorController.SetFloat("WalkVelocity", playerInput.magnitude * playerSpeed);
 
         camDirection(); 
 
@@ -73,7 +78,9 @@ public class PlayerMovement : MonoBehaviour
         {
             fallVelocity -= gravity * Time.deltaTime;
             movePlayer.y = fallVelocity;
+            playerAnimatorController.SetFloat("VerticalVelocity", player.velocity.y);
         }
+        playerAnimatorController.SetBool("IsGrounded", player.isGrounded);
     }
 
     void PlayerSkills()
@@ -82,6 +89,12 @@ public class PlayerMovement : MonoBehaviour
         {
             fallVelocity = jumpVelocity;
             movePlayer.y = fallVelocity;
+            playerAnimatorController.SetTrigger("Jump");
         }
+    }
+
+    private void OnAnimatorMove() 
+    {
+        
     }
 }
