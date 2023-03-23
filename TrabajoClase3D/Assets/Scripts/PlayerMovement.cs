@@ -18,11 +18,19 @@ public class PlayerMovement : MonoBehaviour
     public float fallVelocity;
     public float jumpVelocity;
 
+    public Animator playerAnimatorController;
+
+    public bool isOnSlope = false;
+    private Vector3 hitNormal;
+    public float slideVelocity;
+    public float slopeForceDown;
+
 
     // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<CharacterController>();
+        playerAnimatorController = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -32,6 +40,8 @@ public class PlayerMovement : MonoBehaviour
         verticalMove = Input.GetAxis("Vertical");
         playerInput = new Vector3(horizontalMove, 0, verticalMove);
         playerInput = Vector3.ClampMagnitude(playerInput, 1);
+
+        playerAnimatorController.SetFloat("WalkVelocity", playerInput.magnitude * playerSpeed);
 
         camDirection(); 
 
@@ -73,6 +83,21 @@ public class PlayerMovement : MonoBehaviour
         {
             fallVelocity -= gravity * Time.deltaTime;
             movePlayer.y = fallVelocity;
+            playerAnimatorController.SetFloat("VerticalVelocity", player.velocity.y);
+        }
+        playerAnimatorController.SetBool("IsGrounded", player.isGrounded);
+
+        SlideDown();
+    }
+
+    public void SlideDown()
+    {
+        isOnSlope = Vector3.Angle(Vector3.up, hitNormal) >= player.slopeLimit;
+        if (isOnSlope) 
+        {
+            movePlayer.x += ((1f - hitNormal.x) * hitNormal.x) * slideVelocity;
+            movePlayer.z += ((1f - hitNormal.z) * hitNormal.z) * slideVelocity;
+            movePlayer.y = slopeForceDown;
         }
     }
 
@@ -82,6 +107,16 @@ public class PlayerMovement : MonoBehaviour
         {
             fallVelocity = jumpVelocity;
             movePlayer.y = fallVelocity;
+            playerAnimatorController.SetTrigger("Jump");
         }
+    }
+    private void OnAnimatorMove()
+    {
+        
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        hitNormal = hit.normal;
     }
 }
