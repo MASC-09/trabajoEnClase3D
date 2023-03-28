@@ -36,26 +36,29 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        horizontalMove = Input.GetAxis("Horizontal");
-        verticalMove = Input.GetAxis("Vertical");
-        playerInput = new Vector3(horizontalMove, 0, verticalMove);
-        playerInput = Vector3.ClampMagnitude(playerInput, 1);
+        if (GetComponent<Health>().lives > 0)
+        {
+            horizontalMove = Input.GetAxis("Horizontal");
+            verticalMove = Input.GetAxis("Vertical");
+            playerInput = new Vector3(horizontalMove, 0, verticalMove);
+            playerInput = Vector3.ClampMagnitude(playerInput, 1);
 
-        playerAnimatorController.SetFloat("WalkVelocity", playerInput.magnitude * playerSpeed);
+            playerAnimatorController.SetFloat("WalkVelocity", playerInput.magnitude * playerSpeed);
 
-        camDirection(); 
+            camDirection();
 
-        movePlayer = playerInput.x * camRight + playerInput.z * camFoward;
+            movePlayer = playerInput.x * camRight + playerInput.z * camFoward;
 
-        movePlayer = movePlayer * playerSpeed;
+            movePlayer = movePlayer * playerSpeed;
 
-        player.transform.LookAt(player.transform.position + movePlayer);
+            player.transform.LookAt(player.transform.position + movePlayer);
 
-        SetGravity();
+            SetGravity();
 
-        PlayerSkills();
+            PlayerSkills();
 
-        player.Move(movePlayer * playerSpeed * Time.deltaTime);
+            player.Move(movePlayer * playerSpeed * Time.deltaTime);
+        }
     }
     //Get's the camera's direction
     //get the cameras direction and saves it  the global variblas camForward and camRight
